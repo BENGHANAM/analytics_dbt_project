@@ -1,45 +1,49 @@
-name: validate dbt
+name: Validate dbt
 
 on:
   push:
     branches:
-    - 'feature-*'
+      - 'feature-*'
 
 jobs:
   validate:
-    name: validate dbt models
+    name: Validate dbt models
     runs-on: ubuntu-latest
-  
-  steps:
-    - name: checkout code
-      uses:actions/checkout@v3
-   
-    - name: setup python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-   
-    - name: install dbt
-      run: pip install dbt-core dbt-bigquery
 
-    - name: create profiles.yml
-      run: |
-        mkdir -p ~/.dbt/profiles.yml << EOF
-        online_retail:
-          target: dev
-          outputs:
-            dev:
-              type:bigquery
-              method: service-account-json
-              project: sales-dbt-project
-              dataset: dbt_dev
-              location: EU
-              keyfile_json: ${{ secrets.GCP_SA_KEY }}
-              threads: 4
-              timeout_seconds: 300
-        EOF      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: compile dbt
-      run: |
-        cd online_retail
-        dbt compile 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: pip install dbt-core dbt-bigquery
+
+      - name: Create profiles.yml
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          mkdir -p ~/.dbt
+          echo "${GCP_SA_KEY}" > /tmp/gcp-key.json
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          online_retail:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                project: sales-dbt-project
+                dataset: dbt_dev
+                location: EU
+                keyfile: /tmp/gcp-key.json
+                threads: 4
+                timeout_seconds: 300
+          EOF
+
+      - name: Compile dbt
+        run: |
+          cd online_retail
+          dbt compile

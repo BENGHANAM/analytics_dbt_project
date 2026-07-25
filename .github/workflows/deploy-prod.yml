@@ -23,19 +23,22 @@ jobs:
           run: pip install dbt-core dbt-bigquery
 
         - name: create profiles.yml
+          env:
+            GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           run: |
-            mkdir -p ~/.dbt
-            cat > ~/.dbt/profiles.yml << EOF
+            mkdir -p ~/.dbt/profiles.yml 
+            echo "${GCP_SA_KEY}" > /tmp/gcp-key.json
+            cat > ~/.dbt/profiles.yml << 'EOF'
             online_retail:
               target: prod
               outputs:
-                prod:
-                  type: bigquery
-                  method: service-account-json
+                dev:
+                  type:bigquery
+                  method: service-account
                   project: sales-dbt-project
                   dataset: dbt_prod
                   location: EU
-                  keyfile_json: ${{ secrets.GCP_SA_KEY}}
+                  keyfile: /tmp/gcp-key.json
                   threads: 4
                   timeout_seconds: 300
             EOF
