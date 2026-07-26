@@ -1,0 +1,54 @@
+name: Deploy to PROD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-prod:
+    name: Run dbt PROD pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: pip install dbt-core dbt-bigquery
+
+      - name: Create profiles.yml
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          mkdir -p ~/.dbt
+          echo "${GCP_SA_KEY}" > /tmp/gcp-key.json
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          online_retail:
+            target: prod
+            outputs:
+              prod:
+                type: bigquery
+                method: service-account
+                project: sales-dbt-project
+                dataset: dbt_prod
+                location: EU
+                keyfile: /tmp/gcp-key.json
+                threads: 4
+                timeout_seconds: 300
+          EOF
+
+      - name: Run dbt PROD
+        run: |
+          cd online_retail
+          dbt run --target prod
+
+      - name: Test dbt PROD
+        run: |
+          cd online_retail
+          dbt test --target prod
