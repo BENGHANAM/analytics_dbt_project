@@ -17,3 +17,4 @@ test cicd
 test workflow validate
 test validate_1
 test validate_2
+test validate_2
