@@ -44,6 +44,4 @@ jobs:
           EOF
 
       - name: Compile dbt
-        run: |
-          cd online_retail
-          dbt compile
+        run: dbt compile

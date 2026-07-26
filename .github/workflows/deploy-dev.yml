@@ -44,11 +44,7 @@ jobs:
           EOF
 
       - name: Run dbt DEV
-        run: |
-          cd online_retail
-          dbt run
+        run: dbt run
 
       - name: Test dbt DEV
-        run: |
-          cd online_retail
-          dbt test
+        run: dbt test
