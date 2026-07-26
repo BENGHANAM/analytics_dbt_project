@@ -44,11 +44,7 @@ jobs:
           EOF
 
       - name: Run dbt PROD
-        run: |
-          cd online_retail
-          dbt run --target prod
+        run: dbt run --target prod
 
       - name: Test dbt PROD
-        run: |
-          cd online_retail
-          dbt test --target prod
+        run: dbt test --target prod
