@@ -1,0 +1,54 @@
+name: Deploy to DEV
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy-dev:
+    name: Run dbt DEV pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: pip install dbt-core dbt-bigquery
+
+      - name: Create profiles.yml
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          mkdir -p ~/.dbt
+          echo "${GCP_SA_KEY}" > /tmp/gcp-key.json
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          online_retail:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                project: sales-dbt-project
+                dataset: dbt_dev
+                location: EU
+                keyfile: /tmp/gcp-key.json
+                threads: 4
+                timeout_seconds: 300
+          EOF
+
+      - name: Run dbt DEV
+        run: |
+          cd online_retail
+          dbt run
+
+      - name: Test dbt DEV
+        run: |
+          cd online_retail
+          dbt test
