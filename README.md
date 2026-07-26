@@ -16,3 +16,4 @@ Try running the following commands:
 test cicd
 test workflow validate
 test validate_1
+test validate_2
