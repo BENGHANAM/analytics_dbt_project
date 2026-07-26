@@ -1,6 +1,6 @@
-name: deploy to dev
+name: Deploy to DEV
 
-on: 
+on:
   push:
     branches:
       - develop
@@ -10,44 +10,45 @@ jobs:
     name: Run dbt DEV pipeline
     runs-on: ubuntu-latest
 
-  steps:
-    - name: checkout code
-      uses: actions/checkout@v3
-    
-    - name: setup python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-  
-    - name: install dbt
-      run: pip install dbt-core dbt-bigquery
-    
-    - name: create profiles.yml
-      env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-      run: |
-        mkdir -p ~/.dbt/profiles.yml 
-        echo "${GCP_SA_KEY}" > /tmp/gcp-key.json
-        cat > ~/.dbt/profiles.yml << 'EOF'
-        online_retail:
-          target: dev
-          outputs:
-            dev:
-              type:bigquery
-              method: service-account
-              project: sales-dbt-project
-              dataset: dbt_dev
-              location: EU
-              keyfile: /tmp/gcp-key.json
-              threads: 4
-              timeout_seconds: 300
-        EOF
-    - name: run dbt dev
-      run: |
-        cd online_retail
-        dbt run
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: test dbt dev
-      run: |
-        cd online_retail
-        dbt test    
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: pip install dbt-core dbt-bigquery
+
+      - name: Create profiles.yml
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          mkdir -p ~/.dbt
+          echo "${GCP_SA_KEY}" > /tmp/gcp-key.json
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          online_retail:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                project: sales-dbt-project
+                dataset: dbt_dev
+                location: EU
+                keyfile: /tmp/gcp-key.json
+                threads: 4
+                timeout_seconds: 300
+          EOF
+
+      - name: Run dbt DEV
+        run: |
+          cd online_retail
+          dbt run
+
+      - name: Test dbt DEV
+        run: |
+          cd online_retail
+          dbt test

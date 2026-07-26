@@ -1,53 +1,54 @@
-name: deploy to prod
+name: Deploy to PROD
 
-on: 
+on:
   push:
     branches:
       - main
 
 jobs:
   deploy-prod:
-    - name: run dbt prod pipeline
-      runs-on: ubuntu-latest
-    
-      steps:
-        - name: checkout code
-          uses: actions/checkout@V3
-        
-        - name: setup python
-          uses: actions/setup-python@V4
-          with:
-            python-version: '3.11'
+    name: Run dbt PROD pipeline
+    runs-on: ubuntu-latest
 
-        - name: install dbt
-          run: pip install dbt-core dbt-bigquery
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-        - name: create profiles.yml
-          env:
-            GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-          run: |
-            mkdir -p ~/.dbt/profiles.yml 
-            echo "${GCP_SA_KEY}" > /tmp/gcp-key.json
-            cat > ~/.dbt/profiles.yml << 'EOF'
-            online_retail:
-              target: prod
-              outputs:
-                dev:
-                  type:bigquery
-                  method: service-account
-                  project: sales-dbt-project
-                  dataset: dbt_prod
-                  location: EU
-                  keyfile: /tmp/gcp-key.json
-                  threads: 4
-                  timeout_seconds: 300
-            EOF
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-        - name: run dbt prod
-          run: |
-            cd online_retail
-            dbt run --target prod
-        - name: test dbt prod
-          run: |
-            cd online_retail
-            dbt test --target prod
+      - name: Install dbt
+        run: pip install dbt-core dbt-bigquery
+
+      - name: Create profiles.yml
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          mkdir -p ~/.dbt
+          echo "${GCP_SA_KEY}" > /tmp/gcp-key.json
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          online_retail:
+            target: prod
+            outputs:
+              prod:
+                type: bigquery
+                method: service-account
+                project: sales-dbt-project
+                dataset: dbt_prod
+                location: EU
+                keyfile: /tmp/gcp-key.json
+                threads: 4
+                timeout_seconds: 300
+          EOF
+
+      - name: Run dbt PROD
+        run: |
+          cd online_retail
+          dbt run --target prod
+
+      - name: Test dbt PROD
+        run: |
+          cd online_retail
+          dbt test --target prod
