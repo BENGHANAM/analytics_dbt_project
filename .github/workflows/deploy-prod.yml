@@ -48,3 +48,17 @@ jobs:
 
       - name: Test dbt PROD
         run: dbt test --target prod
+      
+      - name :  Deploy DAG to Composer
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |  
+          echo "${GCP_SA_KEY}" > /tmp/gcp-key.json
+          gcloud auth activate-service-account \
+          --key-file=/tmp/gcp-key.json
+          gcloud config set project sales-dbt-project
+          gsutil cp dags/dbt_online_retail_pipeline.py \
+            gs://${{ secrets.DBT_COMPOSER_BUCKET }}/dags/
+          gsutil -m cp -r dags/dbt \
+            gs://${{ secrets.DBT_COMPOSER_BUCKET }}/dags/
+
