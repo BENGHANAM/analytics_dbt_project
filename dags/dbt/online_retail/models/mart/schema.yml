@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: fct_sales
+    description: "table de fait des ventes"
+    columns:
+      - name: sale_id
+        description: "Clé unique par vente"
+        tests: 
+          - unique
+          - not_null
+
+      - name: invoice_no
+        test: 
+          - not_null
+      - name: total_amount
+        tests:
+          - not_null
+      - name: quantity 
+        tests:
+          - not_null
+  - name: dim_customers
+    description: "Dimension clients"
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+  - name: dim_products
+    description: "Dimension produits"
+    columns:
+      - name: stock_code
+        tests:
+          - not_null       
