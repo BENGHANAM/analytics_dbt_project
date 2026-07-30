@@ -24,7 +24,7 @@ default_args = {
 with DAG(
     dag_id="dbt_online_retail_pipeline",
     description="Pipeline dbt quotidien -> Bigquery PROD",
-    schedule="0 6 * * *",
+    schedule=None, #"0 6 * * *",
     start_date=datetime.now() - timedelta(days= 1),
     default_args=default_args,
     catchup=False,
@@ -33,12 +33,12 @@ with DAG(
     
     dbt_run = BashOperator(
         task_id="dbt_run_prod",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --target prod --profil-dir {DBT_PROFILES_DIR}",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --target prod --profiles-dir {DBT_PROFILES_DIR}",
     )
 
     dbt_test = BashOperator(
         task_id="dbt_test_prod",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt test --target prod --profil-dir {DBT_PROFILES_DIR}",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt test --target prod --profiles-dir {DBT_PROFILES_DIR}",
     )
 
     def notify_success():
