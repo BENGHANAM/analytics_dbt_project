@@ -1,0 +1,25 @@
+version: 2
+
+sources:
+  - name: raw_data
+    project: sales-dbt-project
+    dataset: raw_data
+    description: "Données brutes Online Retail"
+    tables:
+      - name: online_retail
+        description: "Table source brute"
+        columns:
+          - name: InvoiceNo
+            description: "Numéro de facture"
+          - name: StockCode
+            description: "Code produit"
+          - name: Quantity
+            description: "Quantité commandée"
+          - name: InvoiceDate
+            description: "Date de la facture"
+          - name: UnitPrice
+            description: "Prix unitaire"
+          - name: CustomerID
+            description: "Identifiant client"
+          - name: Country
+            description: "Pays"
