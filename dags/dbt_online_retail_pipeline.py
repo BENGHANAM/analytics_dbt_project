@@ -7,10 +7,10 @@ from airflow.operators.python import PythonOperator
 
 #Détéction automatique de l'environnement
 if os.path.exists("/home/airflow/gcs"):
-    DBT_PROJECT_DIR = "home/airflow/dags/dbt/online_retail"
-    DBT_PROFILES_DIR = "home/airflow/dags/dbt"
+    DBT_PROJECT_DIR = "/home/airflow/dags/dbt/online_retail"
+    DBT_PROFILES_DIR = "/home/airflow/dags/dbt"
 else:
-    DBT_PROFILES_DIR = "/opt/airflow/dags/dbt/online_retail"
+    DBT_PROJECT_DIR  = "/opt/airflow//gcs/dags/dbt/online_retail"
     DBT_PROFILES_DIR = "/opt/airflow/dags/dbt"
 
 default_args = {
@@ -33,7 +33,7 @@ with DAG(
     
     dbt_run = BashOperator(
         task_id="dbt_run_prod",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --target prod --profiles-dir {DBT_PROFILES_DIR}",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --target prod --profil-dir {DBT_PROFILES_DIR}",
     )
 
     dbt_test = BashOperator(
