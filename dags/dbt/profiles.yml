@@ -1,0 +1,12 @@
+online_retail:
+  target: prod
+  outputs:
+    prod:
+      type: bigquery
+      method: service-account
+      project: sales-dbt-project
+      dataset: dbt_prod
+      location: EU
+      keyfile: /home/airflow/gcs/dags/dbt/dbt-runner-key.json
+      threads: 4
+      timeout_seconds: 300
