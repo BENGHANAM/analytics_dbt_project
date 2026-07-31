@@ -61,4 +61,15 @@ jobs:
             gs://${{ secrets.DBT_COMPOSER_BUCKET }}/dags/
           gsutil -m cp -r dags/dbt \
             gs://${{ secrets.DBT_COMPOSER_BUCKET }}/dags/
+    
+      - name: Deploy SA key to Composer GCS
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          echo "${GCP_SA_KEY}" > /tmp/dbt-runner-key.json
+          gcloud auth activate-service-account \
+            --key-file=/tmp/dbt-runner-key.json
+          gcloud config set project sales-dbt-project
+          gsutil cp /tmp/dbt-runner-key.json \
+            gs://${{ secrets.DBT_COMPOSER_BUCKET }}/dags/dbt/dbt-runner-key.json
 
