@@ -10,4 +10,10 @@ __pycache__/
 
 # Credentials — IMPORTANT
 *.json
-profiles.yml
+dbt-runner-key.json
+
+# Terraform
+terraform/.terraform
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/tfplan
